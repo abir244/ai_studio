@@ -3,4 +3,6 @@ class RouteName {
   static const onboarding = '/onboarding';
   static const login = '/LoginPage';
   static const registration = '/RegisterPage';
+  static const Category = '/CategoryPage';
+  static const homepage ='/HomePage';
 }

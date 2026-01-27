@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../auth/presentation/pages/login_page.dart';
+import '../../../../core/routes/route_name.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_text_styles.dart';
 import '../../model/onboarding_state.dart';
 import '../../viewmodel/onboarding_viewmodel.dart';
 import '../widgets/onboarding_item.dart';
@@ -21,10 +22,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
     vm = OnboardingViewModel();
   }
 
+  // Helper to handle navigation to Login
+  void _navigateToLogin() {
+    Navigator.pushReplacementNamed(context, RouteName.login);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.scaffoldBg,
       body: Stack(
         children: [
           PageView.builder(
@@ -59,10 +65,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          height: 6,
-          width: isActive ? 28 : 6,
+          height: 8,
+          width: isActive ? 24 : 8,
           decoration: BoxDecoration(
-            color: isActive ? AppColors.primaryPurple : const Color(0xFFE5E7EB),
+            color: isActive ? AppColors.primaryPurple : AppColors.borderLight,
             borderRadius: BorderRadius.circular(10),
           ),
         );
@@ -71,42 +77,50 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildActionButtons() {
+    final bool isLastPage = vm.currentIndex == onboardingPages.length - 1;
+
     return Row(
       children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {},
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(100)),
-              side: const BorderSide(color: Color(0xFFF3F4F6), width: 1.5),
-            ),
-            child: const Text(
-              'Skip',
-              style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        // Skip Button - Only show if not on the last page
+        if (!isLastPage)
+          Expanded(
+            child: TextButton(
+              onPressed: _navigateToLogin,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 18),
+              ),
+              child: Text(
+                'Skip',
+                style: AppTextStyles.bodyMain.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textGrey,
+                ),
+              ),
             ),
           ),
+
+        if (!isLastPage) const SizedBox(width: 16),
+
+        // Next / Get Started Button
+        Expanded(
+          flex: isLastPage ? 2 : 1, // Make it full width on the last page
+          child: _buildGradientButton(isLastPage),
         ),
-        const SizedBox(width: 16),
-        Expanded(child: _buildGradientButton()),
       ],
     );
   }
 
-  Widget _buildGradientButton() {
-    final bool isLastPage = vm.currentIndex == onboardingPages.length - 1;
-
+  Widget _buildGradientButton(bool isLastPage) {
     return Container(
-      height: 58,
+      height: 56,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(100),
-        gradient: AppColors.buttonGradient,
+        borderRadius: BorderRadius.circular(28),
+        gradient: AppColors.primaryGradient,
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF6366F1).withOpacity(0.4),
-            blurRadius: 25,
-            offset: const Offset(0, 10),
+            color: AppColors.primaryPurple.withOpacity(0.3),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           )
         ],
       ),
@@ -115,28 +129,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
           if (!isLastPage) {
             setState(() => vm.next());
           } else {
-            // Navigate to LoginPage when onboarding is done
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (_) => const LoginPage()),
-            );
+            _navigateToLogin();
           }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
           shadowColor: Colors.transparent,
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(100)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
         ),
         child: Text(
-          isLastPage
-              ? 'Get Started'
-              : onboardingPages[vm.currentIndex].buttonText,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-            fontWeight: FontWeight.w800,
-          ),
+          isLastPage ? 'Get Started' : 'Next',
+          style: AppTextStyles.buttonLarge,
         ),
       ),
     );
