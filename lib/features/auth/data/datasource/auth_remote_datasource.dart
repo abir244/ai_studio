@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import '../models/user_model.dart';
 
 class AuthRemoteDataSource {
-  final String baseUrl = 'http://localhost:4000/api/v1/users'; // Change if your backend URL is different
+  final String baseUrl = 'http://192.168.3.172:4000/api/v1/users';
+// Change if your backend URL is different
 
   Future<UserModel> login(String email, String password) async {
     final response = await http.post(

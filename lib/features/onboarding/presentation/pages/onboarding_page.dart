@@ -22,37 +22,62 @@ class _OnboardingPageState extends State<OnboardingPage> {
     vm = OnboardingViewModel();
   }
 
-  // Helper to handle navigation to Login
+  @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
+  }
+
   void _navigateToLogin() {
     Navigator.pushReplacementNamed(context, RouteName.login);
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // Check if current page is the sigma fanned stack (last page)
+    final bool isSigmaPage = vm.currentIndex == onboardingPages.length - 1;
+
     return Scaffold(
       backgroundColor: AppColors.scaffoldBg,
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: vm.pageController,
-            itemCount: onboardingPages.length,
-            onPageChanged: (index) => setState(() => vm.onPageChanged(index)),
-            itemBuilder: (context, index) =>
-                OnboardingItem(content: onboardingPages[index]),
-          ),
-          Positioned(
-            bottom: 50,
-            left: 24,
-            right: 24,
-            child: Column(
-              children: [
-                _buildDots(),
-                const SizedBox(height: 40),
-                _buildActionButtons(),
-              ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // PageView
+            PageView.builder(
+              controller: vm.pageController,
+              itemCount: onboardingPages.length,
+              onPageChanged: (index) => setState(() => vm.onPageChanged(index)),
+              itemBuilder: (context, index) =>
+                  OnboardingItem(content: onboardingPages[index]),
             ),
-          ),
-        ],
+
+            // Bottom section with dots and buttons - HIDDEN on sigma page
+            if (!isSigmaPage)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: AppColors.white,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.06,
+                    vertical: screenHeight * 0.025,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildDots(),
+                      SizedBox(height: screenHeight * 0.025),
+                      _buildActionButtons(),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -60,16 +85,16 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget _buildDots() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(onboardingPages.length, (index) {
+      children: List.generate(onboardingPages.length - 1, (index) { // -1 to exclude sigma page
         bool isActive = vm.currentIndex == index;
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          height: 8,
-          width: isActive ? 24 : 8,
+          height: 6,
+          width: isActive ? 20 : 6,
           decoration: BoxDecoration(
             color: isActive ? AppColors.primaryPurple : AppColors.borderLight,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(3),
           ),
         );
       }),
@@ -77,71 +102,66 @@ class _OnboardingPageState extends State<OnboardingPage> {
   }
 
   Widget _buildActionButtons() {
-    final bool isLastPage = vm.currentIndex == onboardingPages.length - 1;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isLastRegularPage = vm.currentIndex == onboardingPages.length - 2; // Second to last
 
     return Row(
       children: [
-        // Skip Button - Only show if not on the last page
-        if (!isLastPage)
-          Expanded(
-            child: TextButton(
-              onPressed: _navigateToLogin,
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 18),
+        // Skip button
+        Expanded(
+          child: OutlinedButton(
+            onPressed: _navigateToLogin,
+            style: OutlinedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+              side: BorderSide(color: AppColors.borderLight, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(screenWidth * 0.07),
               ),
-              child: Text(
-                'Skip',
-                style: AppTextStyles.bodyMain.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textGrey,
-                ),
+              backgroundColor: AppColors.white,
+            ),
+            child: Text(
+              'Skip',
+              style: AppTextStyles.buttonLarge.copyWith(
+                fontSize: screenHeight * 0.018,
+                color: AppColors.textBlack,
               ),
             ),
           ),
+        ),
 
-        if (!isLastPage) const SizedBox(width: 16),
+        SizedBox(width: screenWidth * 0.03),
 
-        // Next / Get Started Button
+        // Next/Get Started button
         Expanded(
-          flex: isLastPage ? 2 : 1, // Make it full width on the last page
-          child: _buildGradientButton(isLastPage),
+          child: ElevatedButton(
+            onPressed: () {
+              if (!isLastRegularPage) {
+                setState(() => vm.next());
+              } else {
+                // Navigate to sigma page
+                setState(() => vm.next());
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
+              backgroundColor: AppColors.primaryPurple,
+              foregroundColor: AppColors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(screenWidth * 0.07),
+              ),
+              elevation: 0,
+              shadowColor: Colors.transparent,
+            ),
+            child: Text(
+              isLastRegularPage ? 'Get Start' : 'Next',
+              style: AppTextStyles.buttonLarge.copyWith(
+                fontSize: screenHeight * 0.018,
+              ),
+            ),
+          ),
         ),
       ],
-    );
-  }
-
-  Widget _buildGradientButton(bool isLastPage) {
-    return Container(
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: AppColors.primaryGradient,
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primaryPurple.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          )
-        ],
-      ),
-      child: ElevatedButton(
-        onPressed: () {
-          if (!isLastPage) {
-            setState(() => vm.next());
-          } else {
-            _navigateToLogin();
-          }
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
-        ),
-        child: Text(
-          isLastPage ? 'Get Started' : 'Next',
-          style: AppTextStyles.buttonLarge,
-        ),
-      ),
     );
   }
 }

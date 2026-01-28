@@ -12,4 +12,8 @@ class OnboardingViewModel {
       curve: Curves.easeInOutCubic,
     );
   }
+
+  void dispose() {
+    pageController.dispose();
+  }
 }

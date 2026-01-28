@@ -1,31 +1,38 @@
-import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart' show StateNotifierProvider, StateNotifier;
+import '../models/home_state.dart';
 
-class HomeViewModel extends ChangeNotifier {
-  String _selectedAspectRatio = '1:1';
-  String _selectedStyle = 'Realistic';
-  String _prompt = '';
+final homeViewModelProvider =
+StateNotifierProvider<HomeViewModel, HomeState>(
+      (ref) => HomeViewModel(),
+);
 
-  String get selectedAspectRatio => _selectedAspectRatio;
-  String get selectedStyle => _selectedStyle;
-  String get prompt => _prompt;
+class HomeViewModel extends StateNotifier<HomeState> {
+  HomeViewModel() : super(const HomeState());
 
-  void setAspectRatio(String ratio) {
-    _selectedAspectRatio = ratio;
-    notifyListeners();
+  void setPrompt(String value) {
+    state = state.copyWith(prompt: value);
   }
 
   void setStyle(String style) {
-    _selectedStyle = style;
-    notifyListeners();
+    state = state.copyWith(selectedStyle: style);
   }
 
-  void setPrompt(String value) {
-    _prompt = value;
-    notifyListeners();
+  void setAspectRatio(String ratio) {
+    state = state.copyWith(selectedAspectRatio: ratio);
   }
 
-  void generateImage() {
-    // Logic to call image generation API
-    print("Generating image with prompt: $_prompt, Style: $_selectedStyle, Ratio: $_selectedAspectRatio");
+  Future<void> generateImage() async {
+    state = state.copyWith(isLoading: true);
+
+    await Future.delayed(const Duration(seconds: 2)); // fake API call
+
+    print(
+      "Generating image with prompt: ${state.prompt}, "
+          "Style: ${state.selectedStyle}, "
+          "Ratio: ${state.selectedAspectRatio}",
+    );
+
+    state = state.copyWith(isLoading: false);
   }
 }
