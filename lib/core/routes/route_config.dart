@@ -1,3 +1,4 @@
+import 'package:ai_studio/features/chat/presentation/pages/chat_room_page.dart';
 import 'package:flutter/material.dart';
 // 1. Import the new MainScreen
 import '../../features/home/presentation/pages/category_page.dart';
@@ -21,6 +22,11 @@ class RouteConfig {
       case RouteName.onboarding:
         return MaterialPageRoute(
           builder: (_) => const OnboardingPage(),
+        );
+
+      case RouteName.ChatRoom:
+        return MaterialPageRoute(
+          builder: (_) => ChatRoomPage(),
         );
 
       case RouteName.login:

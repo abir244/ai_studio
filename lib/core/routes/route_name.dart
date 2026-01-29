@@ -5,4 +5,5 @@ class RouteName {
   static const registration = '/RegisterPage';
   static const Category = '/CategoryPage';
   static const homepage ='/HomePage';
+  static const ChatRoom='/ChatRoomPage';
 }

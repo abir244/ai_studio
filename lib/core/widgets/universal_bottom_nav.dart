@@ -1,8 +1,11 @@
+import 'package:ai_studio/core/routes/route_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_colors.dart';
 import '../../features/home/viewmodel/navigation_provider.dart';
+// Assuming RouteName is defined in your constants/routes file
+// import '../../core/routes/route_names.dart';
 
 class UniversalBottomNav extends ConsumerWidget {
   const UniversalBottomNav({super.key});
@@ -17,7 +20,7 @@ class UniversalBottomNav extends ConsumerWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Container(
-          height: 90, // Slightly taller for bigger icons
+          height: 90,
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(45),
@@ -33,13 +36,13 @@ class UniversalBottomNav extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildNavItem(ref, 0, '$imagePath/home.png', currentIndex),
-              _buildNavItem(ref, 1, '$imagePath/discover.png', currentIndex),
+              _buildNavItem(context, ref, 0, '$imagePath/home.png', currentIndex),
+              _buildNavItem(context, ref, 1, '$imagePath/discover.png', currentIndex),
 
               _buildMagicButton(ref),
 
-              _buildNavItem(ref, 3, '$imagePath/chat.png', currentIndex),
-              _buildNavItem(ref, 4, '$imagePath/profile.png', currentIndex),
+              _buildNavItem(context, ref, 3, '$imagePath/chat.png', currentIndex),
+              _buildNavItem(context, ref, 4, '$imagePath/profile.png', currentIndex),
             ],
           ),
         ),
@@ -47,22 +50,33 @@ class UniversalBottomNav extends ConsumerWidget {
     );
   }
 
-  Widget _buildNavItem(WidgetRef ref, int index, String assetPath, int currentIndex) {
+  Widget _buildNavItem(BuildContext context, WidgetRef ref, int index, String assetPath, int currentIndex) {
     bool isActive = currentIndex == index;
 
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
-        ref.read(navigationIndexProvider.notifier).state = index;
+
+        if (index == 3) {
+          // Navigate to ChatRoom route
+          Navigator.pushNamed(context,RouteName.ChatRoom);
+
+          // Optional: If you want the bottom bar to switch to the chat tab
+          // when the user comes back, uncomment the line below:
+          // ref.read(navigationIndexProvider.notifier).state = index;
+        } else {
+          // Standard tab switching
+          ref.read(navigationIndexProvider.notifier).state = index;
+        }
       },
       behavior: HitTestBehavior.opaque,
       child: AnimatedScale(
-        scale: isActive ? 1.2 : 1.0, // Slightly more pop when active
+        scale: isActive ? 1.2 : 1.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         child: Image.asset(
           assetPath,
-          width: 40, // Increased size
+          width: 40,
           height: 40,
           color: isActive ? AppColors.primaryPurple : AppColors.textGrey.withOpacity(0.5),
           fit: BoxFit.contain,
@@ -80,7 +94,7 @@ class UniversalBottomNav extends ConsumerWidget {
         ref.read(navigationIndexProvider.notifier).state = 2;
       },
       child: AnimatedScale(
-        scale: isSelected ? 1.12 : 1.0, // Slightly bigger when active
+        scale: isSelected ? 1.12 : 1.0,
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
         child: Container(
@@ -109,3 +123,8 @@ class UniversalBottomNav extends ConsumerWidget {
     );
   }
 }
+
+// Ensure RouteName is defined elsewhere or add it here for testing:
+// class RouteName {
+//   static const String ChatRoom = '/chat-room';
+// }
