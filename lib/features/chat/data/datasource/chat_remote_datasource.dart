@@ -6,7 +6,7 @@ class ChatRemoteDataSource {
 
   void initSocket() {
     socket = io(
-      'http://localhost:4000', // replace with your backend URL
+      "https://backendchatapp-production-f26a.up.railway.app", // replace with your backend URL
       OptionBuilder().setTransports(['websocket']).build(),
     );
 

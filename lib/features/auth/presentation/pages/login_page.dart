@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// Theme & Routes
 import '../../../../core/routes/route_name.dart';
 import '../../../../core/theme/app_colors.dart';
-
-// ViewModels
 import '../../viewmodel/auth_providers.dart';
-
-// Split Widgets
 import '../widgets/custom_lodaing.dart';
 import '../widgets/custom_text_field.dart';
-import '../widgets/login_button.dart';
-// Ensure this matches your filename
+import '../widgets/login_button.dart'; // Make sure this path is correct
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -40,19 +33,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   }
 
   /// Handles the login process
-  void _login() async {
+  Future<void> _login() async {
     // 1. Show the split loading dialog
-    // We use rootNavigator: true to ensure the dialog sits on top of everything
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const CustomLoadingDialog(),
     );
 
-    final viewModel = ref.read(authViewModelProvider.notifier);
-
-    // 2. Perform the async login logic
-    await viewModel.login(
+    // 2. Perform the async login logic using Riverpod
+    final authNotifier = ref.read(authNotifierProvider.notifier);
+    await authNotifier.login(
       emailController.text.trim(),
       passwordController.text.trim(),
     );
@@ -64,18 +55,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     // 4. Handle Post-Login Logic
     if (!mounted) return;
-    final state = ref.read(authViewModelProvider);
+    final authState = ref.read(authNotifierProvider);
 
-    if (state.error != null) {
+    if (authState.error != null) {
       // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(state.error!),
+          content: Text(authState.error!),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
         ),
       );
-    } else if (state.user != null) {
+    } else if (authState.user != null) {
       // Navigate to the next screen (Category)
       Navigator.pushReplacementNamed(context, RouteName.Category);
     }
@@ -83,6 +74,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authNotifierProvider);
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -128,11 +121,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
                 const SizedBox(height: 32),
 
-                // Login Button
+                // Login Button - FIXED
                 LoginButton(
                   text: 'Login',
-                  isLoading: false, // Dialog handles loading state visually
                   onPressed: _login,
+                  isLoading: authState.isLoading,
                 ),
 
                 const SizedBox(height: 20),
@@ -143,7 +136,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   children: [
                     const Text("Don't have an account?"),
                     TextButton(
-                      onPressed: () => Navigator.pushNamed(context, RouteName.registration),
+                      onPressed: authState.isLoading
+                          ? null
+                          : () => Navigator.pushNamed(context, RouteName.registration),
                       child: const Text(
                         'Register',
                         style: TextStyle(
