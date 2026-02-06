@@ -1,16 +1,18 @@
-import '../repository/chat_repository.dart';
 import '../../data/models/message_model.dart';
+import '../../domain/repository/chat_repository.dart';
 
 class GetMessagesUseCase {
   final ChatRepository repository;
 
   GetMessagesUseCase(this.repository);
 
-  void call(void Function(List<MessageModel>) callback) {
-    repository.getChatHistory(callback);
+  // This is the "listen" method your ViewModel is looking for
+  void listen(void Function(MessageModel) onMessage) {
+    repository.listenMessages(onMessage);
   }
 
-  void listen(void Function(MessageModel) callback) {
-    repository.listenMessages(callback);
+  // This handles the initial history fetch
+  void call(void Function(List<MessageModel>) onHistory) {
+    repository.getChatHistory(onHistory);
   }
 }

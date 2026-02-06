@@ -5,7 +5,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../viewmodel/auth_providers.dart';
 import '../widgets/custom_lodaing.dart';
 import '../widgets/custom_text_field.dart';
-import '../widgets/login_button.dart'; // Make sure this path is correct
+import '../widgets/login_button.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -34,31 +34,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   /// Handles the login process
   Future<void> _login() async {
-    // 1. Show the split loading dialog
+    // 1. Basic validation
+    if (emailController.text.trim().isEmpty || passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter email and password")),
+      );
+      return;
+    }
+
+    // 2. Show loading dialog
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => const CustomLoadingDialog(),
     );
 
-    // 2. Perform the async login logic using Riverpod
+    // 3. Perform login
     final authNotifier = ref.read(authNotifierProvider.notifier);
     await authNotifier.login(
       emailController.text.trim(),
       passwordController.text.trim(),
     );
 
-    // 3. Dismiss the loading dialog safely
+    // 4. Close loading dialog
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pop();
     }
 
-    // 4. Handle Post-Login Logic
     if (!mounted) return;
+
+    // 5. Check final state
     final authState = ref.read(authNotifierProvider);
 
     if (authState.error != null) {
-      // Show error message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authState.error!),
@@ -67,13 +75,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     } else if (authState.user != null) {
-      // Navigate to the next screen (Category)
+      // NOTE: currentUsernameProvider updates automatically now
+      // because it watches authNotifierProvider!
       Navigator.pushReplacementNamed(context, RouteName.Category);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Listen for loading states to disable buttons if necessary
     final authState = ref.watch(authNotifierProvider);
 
     return Scaffold(
@@ -85,52 +95,43 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // App Logo
                 Center(
                   child: Image.asset(
                     'assets/images/Frame.png',
                     width: 100,
                     height: 100,
                     fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.lock, size: 80, color: AppColors.primaryPurple),
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Title
                 const Text(
-                  "Login",
+                  "Welcome Back",
                   style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
-
-                // Input Fields
                 CustomTextField(
                   label: 'Email',
-                  hint: 'Enter email',
+                  hint: 'Enter your email',
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                 ),
                 const SizedBox(height: 20),
                 CustomTextField(
                   label: 'Password',
-                  hint: 'Enter password',
+                  hint: 'Enter your password',
                   controller: passwordController,
                   isPassword: true,
                 ),
-
                 const SizedBox(height: 32),
-
-                // Login Button - FIXED
                 LoginButton(
                   text: 'Login',
                   onPressed: _login,
                   isLoading: authState.isLoading,
                 ),
-
                 const SizedBox(height: 20),
-
-                // Registration Link
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

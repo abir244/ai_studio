@@ -54,18 +54,21 @@ class UniversalBottomNav extends ConsumerWidget {
     bool isActive = currentIndex == index;
 
     return GestureDetector(
+      // Inside your _buildNavItem function, update the onTap:
       onTap: () {
         HapticFeedback.lightImpact();
 
         if (index == 3) {
-          // Navigate to ChatRoom route
-          Navigator.pushNamed(context,RouteName.ChatRoom);
-
-          // Optional: If you want the bottom bar to switch to the chat tab
-          // when the user comes back, uncomment the line below:
-          // ref.read(navigationIndexProvider.notifier).state = index;
+          // FIX: Pass the Map arguments that RouteConfig is looking for
+          Navigator.pushNamed(
+            context,
+            RouteName.ListPage,
+            arguments: {
+              'conversationId': 'main_room_001',
+              'conversationName': 'AI Studio Chat',
+            },
+          );
         } else {
-          // Standard tab switching
           ref.read(navigationIndexProvider.notifier).state = index;
         }
       },

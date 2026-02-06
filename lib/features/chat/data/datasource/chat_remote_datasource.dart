@@ -4,37 +4,39 @@ import '../models/message_model.dart';
 class ChatRemoteDataSource {
   late Socket socket;
 
+  ChatRemoteDataSource() {
+    // FIX: Initialize immediately so 'socket' is never null when accessed
+    initSocket();
+  }
+
   void initSocket() {
     socket = io(
-      "https://backendchatapp-production-f26a.up.railway.app", // replace with your backend URL
-      OptionBuilder().setTransports(['websocket']).build(),
+      "http://192.168.7.72:4000", // <- use your local server IP and port
+      OptionBuilder()
+          .setTransports(['websocket'])
+          .enableAutoConnect() // Ensures it connects automatically
+          .build(),
     );
 
-    socket.onConnect((_) {
-      print('✅ Connected to Socket.IO server');
-    });
 
-    socket.onDisconnect((_) {
-      print('❌ Disconnected from server');
-    });
+    socket.onConnect((_) => print('✅ Connected to Socket.IO server'));
+    socket.onDisconnect((_) => print('❌ Disconnected from server'));
+
+    // Debugging: catch any errors from the socket
+    socket.onConnectError((data) => print('Connect Error: $data'));
+    socket.onError((data) => print('Socket Error: $data'));
   }
 
   void sendMessage(MessageModel message) {
     socket.emit('send_message', message.toJson());
   }
 
-  void onReceiveMessage(void Function(MessageModel) callback) {
-    socket.on('receive_message', (data) {
-      callback(MessageModel.fromJson(data));
-    });
+  // FIX: Use dynamic in the handler to prevent casting errors before the Repository handles it
+  void onReceiveMessage(void Function(dynamic) handler) {
+    socket.on('receive_message', (data) => handler(data));
   }
 
-  void onChatHistory(void Function(List<MessageModel>) callback) {
-    socket.on('chat_history', (data) {
-      final messages = (data as List)
-          .map((e) => MessageModel.fromJson(e))
-          .toList();
-      callback(messages);
-    });
+  void onChatHistory(void Function(dynamic) handler) {
+    socket.on('chat_history', (data) => handler(data));
   }
 }
