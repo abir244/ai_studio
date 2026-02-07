@@ -1,8 +1,6 @@
 import 'package:ai_studio/features/chat/presentation/pages/chat_room_page.dart';
-import 'package:ai_studio/features/chat/presentation/pages/join_room_page.dart';
 import 'package:flutter/material.dart';
-import '../../features/chat/presentation/pages/chat_list_page.dart';
-import '../../features/chat/presentation/pages/create_room_page.dart';
+// 1. Import the new MainScreen
 import '../../features/home/presentation/pages/category_page.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -15,46 +13,47 @@ import 'route_name.dart';
 class RouteConfig {
   static Route<dynamic> generate(RouteSettings settings) {
     switch (settings.name) {
+
       case RouteName.splash:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+        return MaterialPageRoute(
+          builder: (_) => const SplashPage(),
+        );
 
       case RouteName.onboarding:
-        return MaterialPageRoute(builder: (_) => const OnboardingPage());
+        return MaterialPageRoute(
+          builder: (_) => const OnboardingPage(),
+        );
 
       case RouteName.ChatRoom:
-      // FIX: Extracting arguments safely to prevent Null subtype error
-        final args = settings.arguments as Map<String, dynamic>? ?? {
-          'conversationId': 'default_id',
-          'conversationName': 'New Chat',
-        };
         return MaterialPageRoute(
-          builder: (_) => ChatRoomPage(
-            conversationId: args['conversationId'],
-            conversationName: args['conversationName'],
-          ),
+          builder: (_) => ChatRoomPage(),
         );
 
       case RouteName.login:
-        return MaterialPageRoute(builder: (_) => const LoginPage());
-      // case RouteName.ListPage:
-      //   return MaterialPageRoute(builder:(_) => const UserListPage());
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        );
 
       case RouteName.registration:
-        return MaterialPageRoute(builder: (_) => const RegisterPage());
+        return MaterialPageRoute(
+          builder: (_) => const RegisterPage(),
+        );
 
       case RouteName.Category:
-        return MaterialPageRoute(builder: (_) => const CategoryPage());
+        return MaterialPageRoute(
+          builder: (_) => const CategoryPage(),
+        );
 
+    // 2. Point homepage to MainScreen (The Shell with Bottom Nav)
       case RouteName.homepage:
-        return MaterialPageRoute(builder: (_) => const MainScreen());
+        return MaterialPageRoute(
+          builder: (_) => const MainScreen(),
+        );
 
-      case RouteName.CreateRoomPage:
-        return MaterialPageRoute(builder: (_) => const CreateRoomPage());
-
-      case RouteName.JoinRoomPage:
-        return MaterialPageRoute(builder: (_) => const JoinRoomPage());
       default:
-        return MaterialPageRoute(builder: (_) => const SplashPage());
+        return MaterialPageRoute(
+          builder: (_) => const SplashPage(),
+        );
     }
   }
 }

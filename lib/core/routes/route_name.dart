@@ -4,9 +4,6 @@ class RouteName {
   static const login = '/LoginPage';
   static const registration = '/RegisterPage';
   static const Category = '/CategoryPage';
-  static const homepage = '/HomePage';
-  static const ChatRoom = '/ChatRoomPage';
-  static const ListPage = '/UserListPage';
-  static const CreateRoomPage='/CreateRoomPage';
-  static const JoinRoomPage='/JoinRoomPage';
+  static const homepage ='/HomePage';
+  static const ChatRoom='/ChatRoomPage';
 }

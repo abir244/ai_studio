@@ -1,9 +1,9 @@
+import 'package:ai_studio/features/auth/presentation/widgets/custom_lodaing.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/routes/route_name.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../viewmodel/auth_providers.dart';
-import '../widgets/custom_lodaing.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/login_button.dart';
 
@@ -72,7 +72,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           content: Text(authState.error!),
           backgroundColor: Colors.red,
           behavior: SnackBarBehavior.floating,
-        ),
+        ),-
       );
     } else if (authState.user != null) {
       // NOTE: currentUsernameProvider updates automatically now

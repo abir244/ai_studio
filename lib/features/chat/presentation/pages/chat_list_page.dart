@@ -1,3 +1,77 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/routes/route_name.dart';
+
+class ConversationItem {
+  final String id;
+  final String name;
+  final String lastMessage;
+
+  const ConversationItem({
+    required this.id,
+    required this.name,
+    required this.lastMessage,
+  });
+}
+
+class ChatListPage extends ConsumerWidget {
+  const ChatListPage({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Demo conversations (replace later with backend)
+    final conversations = const <ConversationItem>[
+      ConversationItem(
+        id: 'general',
+        name: 'General Chat',
+        lastMessage: 'Welcome 👋',
+      ),
+      ConversationItem(
+        id: 'support',
+        name: 'Support',
+        lastMessage: 'How can we help?',
+      ),
+      ConversationItem(
+        id: 'friends',
+        name: 'Friends',
+        lastMessage: 'Hey! 👀',
+      ),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Chats')),
+      body: ListView.separated(
+        itemCount: conversations.length,
+        separatorBuilder: (_, __) => const Divider(height: 1),
+        itemBuilder: (context, index) {
+          final c = conversations[index];
+
+          return ListTile(
+            leading: CircleAvatar(
+              child: Text(c.name.isNotEmpty ? c.name[0] : '?'),
+            ),
+            title: Text(c.name),
+            subtitle: Text(
+              c.lastMessage,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                RouteName.ChatRoom,
+                arguments: {
+                  'conversationId': c.id,
+                  'conversationName': c.name,
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
 // import 'package:flutter/material.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import '../../../../core/routes/route_name.dart';

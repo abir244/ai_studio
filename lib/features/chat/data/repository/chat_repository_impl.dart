@@ -5,8 +5,7 @@ import '../../domain/repository/chat_repository.dart';
 class ChatRepositoryImpl implements ChatRepository {
   final ChatRemoteDataSource remoteDataSource;
 
-  ChatRepositoryImpl({ChatRemoteDataSource? remoteDataSource})
-      : remoteDataSource = remoteDataSource ?? ChatRemoteDataSource();
+  ChatRepositoryImpl({required this.remoteDataSource});
 
   @override
   void sendMessage(MessageModel message) {
@@ -15,24 +14,11 @@ class ChatRepositoryImpl implements ChatRepository {
 
   @override
   void listenMessages(void Function(MessageModel) callback) {
-    remoteDataSource.onReceiveMessage((dynamic data) {
-      if (data != null && data is Map<String, dynamic>) {
-        callback(MessageModel.fromJson(data));
-      }
-    });
+    remoteDataSource.onReceiveMessage(callback);
   }
 
   @override
   void getChatHistory(void Function(List<MessageModel>) callback) {
-    remoteDataSource.onChatHistory((dynamic historyData) {
-      if (historyData is List) {
-        final List<MessageModel> messages = historyData
-            .map((json) => MessageModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-        callback(messages);
-      } else {
-        callback([]); // Return empty list if data is null or invalid
-      }
-    });
+    remoteDataSource.onChatHistory(callback);
   }
 }

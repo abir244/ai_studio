@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import '../../../../core/widgets/universal_bottom_nav.dart';
 import '../../../home/presentation/pages/category_page.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../../home/viewmodel/navigation_provider.dart';
-
+import '../../../chat/presentation/pages/chat_list_page.dart';
 
 class MainScreen extends ConsumerWidget {
   const MainScreen({super.key});
@@ -13,19 +14,20 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationIndexProvider);
 
-    // Swap screens based on tab index
-    final List<Widget> pages = [
-      const HomePage(),      // Index 0
-      const CategoryPage(),  // Index 1
-      const HomePage(),      // Index 2 (Center Action)
-      const Center(child: Text("Chat")),    // Index 3
-      const Center(child: Text("Profile")), // Index 4
+    final pages = <Widget>[
+      const HomePage(),               // 0
+      const CategoryPage(),           // 1
+      const Center(child: Text("Magic")), // 2
+      const ChatListPage(),           // 3 ✅
+      const Center(child: Text("Profile")), // 4
     ];
 
+    final safeIndex = currentIndex.clamp(0, pages.length - 1);
+
     return Scaffold(
-      extendBody: true, // Crucial: lets the body extend behind the floating pill nav
+      extendBody: true,
       body: IndexedStack(
-        index: currentIndex,
+        index: safeIndex,
         children: pages,
       ),
       bottomNavigationBar: const UniversalBottomNav(),
